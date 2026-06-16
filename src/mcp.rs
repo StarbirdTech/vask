@@ -96,6 +96,7 @@ impl ServerHandler for VaskServer {
         let mut info = ServerInfo::default();
         info.capabilities = ServerCapabilities::builder().enable_tools().build();
         info.instructions = Some("Ask questions about YouTube videos using Gemini.".into());
+        info.server_info = rmcp::model::Implementation::new("vask", env!("CARGO_PKG_VERSION"));
         info
     }
 }

@@ -38,7 +38,7 @@ pub enum Command {
 
 pub fn format_ask(a: &AskAnswer, json: bool) -> String {
     if json {
-        serde_json::to_string_pretty(a).unwrap()
+        serde_json::to_string_pretty(a).expect("serializing a plain struct to JSON cannot fail")
     } else {
         a.answer.clone()
     }
@@ -46,7 +46,8 @@ pub fn format_ask(a: &AskAnswer, json: bool) -> String {
 
 pub fn format_summary(s: &Summary, json: bool) -> String {
     if json {
-        return serde_json::to_string_pretty(s).unwrap();
+        return serde_json::to_string_pretty(s)
+            .expect("serializing a plain struct to JSON cannot fail");
     }
     let mut out = String::new();
     out.push_str(&s.overview);
@@ -61,7 +62,8 @@ pub fn format_summary(s: &Summary, json: bool) -> String {
 
 pub fn format_chapters(c: &[Chapter], json: bool) -> String {
     if json {
-        return serde_json::to_string_pretty(c).unwrap();
+        return serde_json::to_string_pretty(c)
+            .expect("serializing a plain struct to JSON cannot fail");
     }
     let mut out = String::new();
     for ch in c {
@@ -124,6 +126,6 @@ mod tests {
         };
         let out = format_summary(&s, false);
         assert!(out.contains("- a"));
-        assert!(out.contains("t"));
+        assert!(out.contains("Topics: t"));
     }
 }

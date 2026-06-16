@@ -73,13 +73,22 @@ impl GeminiClient for HttpGeminiClient {
         schema: Option<Value>,
     ) -> anyhow::Result<String> {
         let url = format!(
-            "https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={}",
-            self.api_key
+            "https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent"
         );
         let body = build_request_body(prompt, video_url, schema.as_ref());
-        let resp = self.http.post(&url).json(&body).send().await?;
+        let resp = self
+            .http
+            .post(&url)
+            .header("x-goog-api-key", &self.api_key)
+            .json(&body)
+            .send()
+            .await
+            .map_err(|e| anyhow::anyhow!("request to Gemini failed: {}", e.without_url()))?;
         let status = resp.status();
-        let text = resp.text().await?;
+        let text = resp
+            .text()
+            .await
+            .map_err(|e| anyhow::anyhow!("reading Gemini response failed: {}", e.without_url()))?;
         if !status.is_success() {
             anyhow::bail!("Gemini API error {status}: {text}");
         }

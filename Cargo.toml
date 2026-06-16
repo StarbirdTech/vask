@@ -6,6 +6,9 @@ license = "MIT"
 description = "Ask questions about YouTube videos with Gemini's native video understanding"
 repository = "https://github.com/StarbirdTech/vask"
 readme = "README.md"
+homepage = "https://github.com/StarbirdTech/vask"
+keywords = ["youtube", "gemini", "video", "mcp", "cli"]
+categories = ["command-line-utilities", "multimedia::video"]
 
 [dependencies]
 clap = { version = "4", features = ["derive"] }

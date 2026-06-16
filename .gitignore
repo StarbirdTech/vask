@@ -1,4 +1,10 @@
 /target
 **/*.rs.bk
-Cargo.lock
 .DS_Store
+
+# local harness + secrets (never published)
+.claude/
+.sops.yaml
+secrets/
+.env
+*.decrypted.*

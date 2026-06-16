@@ -19,14 +19,19 @@ fn config_path() -> Option<PathBuf> {
     dirs::config_dir().map(|d| d.join("vask").join("config.toml"))
 }
 
-fn load_file_config() -> FileConfig {
+fn parse_file_config(text: &str) -> anyhow::Result<FileConfig> {
+    toml::from_str(text).map_err(|e| anyhow::anyhow!("invalid TOML: {e}"))
+}
+
+fn load_file_config() -> anyhow::Result<FileConfig> {
     let Some(path) = config_path() else {
-        return FileConfig::default();
+        return Ok(FileConfig::default());
     };
-    let Ok(text) = std::fs::read_to_string(path) else {
-        return FileConfig::default();
-    };
-    toml::from_str(&text).unwrap_or_default()
+    match std::fs::read_to_string(&path) {
+        Ok(text) => parse_file_config(&text)
+            .map_err(|e| anyhow::anyhow!("invalid config at {}: {e}", path.display())),
+        Err(_) => Ok(FileConfig::default()), // missing/unreadable file is not an error
+    }
 }
 
 fn resolve_inner(
@@ -54,7 +59,7 @@ pub fn resolve(model_flag: Option<String>, key_flag: Option<String>) -> anyhow::
         key_flag,
         std::env::var("GEMINI_API_KEY").ok(),
         std::env::var("VASK_MODEL").ok(),
-        load_file_config(),
+        load_file_config()?,
     )
 }
 
@@ -99,5 +104,17 @@ mod tests {
         };
         let err = resolve_inner(None, None, None, None, file).unwrap_err();
         assert!(err.to_string().contains("GEMINI_API_KEY"));
+    }
+
+    #[test]
+    fn parse_file_config_reads_valid_toml() {
+        let cfg = parse_file_config("api_key = \"k\"\ndefault_model = \"m\"").unwrap();
+        assert_eq!(cfg.api_key.as_deref(), Some("k"));
+        assert_eq!(cfg.default_model.as_deref(), Some("m"));
+    }
+
+    #[test]
+    fn parse_file_config_errors_on_malformed_toml() {
+        assert!(parse_file_config("api_key = = bad").is_err());
     }
 }

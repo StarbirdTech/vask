@@ -3,13 +3,17 @@ use crate::types::{AskAnswer, Chapter, Summary};
 use serde_json::json;
 
 pub fn validate_youtube_url(url: &str) -> anyhow::Result<()> {
-    let ok = url.contains("youtube.com/watch")
-        || url.contains("youtu.be/")
-        || url.contains("youtube.com/shorts/");
+    let rest = url
+        .strip_prefix("https://")
+        .or_else(|| url.strip_prefix("http://"))
+        .ok_or_else(|| anyhow::anyhow!("URL must start with http(s)://: {url}"))?;
+    let host = rest.split(['/', '?', '#']).next().unwrap_or("");
+    let host = host.strip_prefix("www.").unwrap_or(host);
+    let ok = matches!(host, "youtube.com" | "m.youtube.com" | "youtu.be");
     if ok {
         Ok(())
     } else {
-        anyhow::bail!("not a recognized YouTube URL: {url}")
+        anyhow::bail!("not a recognized YouTube URL (host '{host}'): {url}")
     }
 }
 
@@ -102,7 +106,11 @@ mod tests {
     fn validate_accepts_youtube_and_rejects_other() {
         assert!(validate_youtube_url("https://www.youtube.com/watch?v=abc").is_ok());
         assert!(validate_youtube_url("https://youtu.be/abc").is_ok());
+        assert!(validate_youtube_url("https://m.youtube.com/watch?v=abc").is_ok());
+        assert!(validate_youtube_url("https://youtube.com/shorts/abc").is_ok());
         assert!(validate_youtube_url("https://vimeo.com/123").is_err());
+        assert!(validate_youtube_url("https://evil.com/youtu.be/x").is_err());
+        assert!(validate_youtube_url("ftp://youtu.be/x").is_err());
     }
 
     #[tokio::test]

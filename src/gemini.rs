@@ -142,8 +142,18 @@ mod tests {
     }
 
     #[test]
-    fn parse_errors_on_missing_text() {
+    fn parse_errors_on_empty_candidates() {
         let body = json!({ "candidates": [] });
+        assert!(parse_response_text(&body).is_err());
+    }
+
+    #[test]
+    fn parse_errors_when_parts_have_no_text() {
+        let body = json!({
+            "candidates": [{ "content": { "parts": [
+                { "thoughtSignature": "abc" }
+            ] } }]
+        });
         assert!(parse_response_text(&body).is_err());
     }
 

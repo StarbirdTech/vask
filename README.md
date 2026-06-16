@@ -9,9 +9,9 @@ Ask questions about YouTube videos using Gemini's native video understanding.
 
 `vask` passes a YouTube URL directly to the Gemini API and lets Gemini analyze the actual video - frames and audio - without downloading anything or scraping transcripts. This means it understands visual content that captions never capture.
 
-For example, asking "What animals are in this video?" about the first-ever YouTube upload returns:
+For example, asking "What animals are mentioned and what is notable about them?" about the first-ever YouTube upload returns:
 
-> At the zoo, there are elephants visible in the background while the narrator stands in front of their enclosure.
+> The video mentions elephants (visible in the background from 0:00 to 0:19). The speaker notes that they have "really, really, really long trunks" (0:05 - 0:13).
 
 That detail comes from watching the video, not reading a caption.
 
@@ -25,7 +25,11 @@ cd vask
 cargo install --path .
 ```
 
-**Planned (not yet published):** `cargo install vask` (crates.io) and a Homebrew tap will be available once the crate is published.
+**Planned (not yet published):**
+
+- `cargo install vask` (crates.io) - once the crate is published
+- Homebrew tap - once the crate is published
+- Binary download from GitHub Releases (planned)
 
 ## Auth
 
@@ -60,23 +64,23 @@ All commands share three optional global flags:
 Ask a free-form question about a video. Gemini analyzes frames and audio to answer.
 
 ```sh
-vask ask https://youtu.be/jNQXAC9IVRw "What animals are visible in the video?"
+vask ask "https://www.youtube.com/watch?v=jNQXAC9IVRw" "What animals are mentioned and what is notable about them?"
 ```
 
 ```
-At the zoo, there are elephants visible in the background while the narrator
-stands in front of their enclosure and briefly describes them.
+The video mentions elephants (visible in the background from 0:00 to 0:19).
+The speaker notes that they have "really, really, really long trunks" (0:05 - 0:13).
 ```
 
 With `--json`:
 
 ```sh
-vask ask --json https://youtu.be/jNQXAC9IVRw "What animals are visible in the video?"
+vask ask --json "https://www.youtube.com/watch?v=jNQXAC9IVRw" "How long is this video roughly?"
 ```
 
 ```json
 {
-  "answer": "At the zoo, there are elephants visible in the background while the narrator stands in front of their enclosure and briefly describes them."
+  "answer": "This video is roughly 19 seconds long."
 }
 ```
 
@@ -87,19 +91,19 @@ vask ask --json https://youtu.be/jNQXAC9IVRw "What animals are visible in the vi
 Generate a structured summary: an overview paragraph, key points, and topic tags.
 
 ```sh
-vask summarize https://youtu.be/jNQXAC9IVRw
+vask summarize "https://www.youtube.com/watch?v=jNQXAC9IVRw"
 ```
 
 ```
-A short clip filmed at a zoo, featuring a narrator standing in front of an
-elephant enclosure and describing the animals to the camera.
+In this historic video, YouTube co-founder Jawed Karim stands in front of the elephant exhibit at the San Diego Zoo. He briefly comments on the elephants behind him, noting their exceptionally long trunks and expressing that it is a cool feature before concluding his short message. This simple clip represents a major milestone as the very first video uploaded to YouTube.
 
 Key points:
-  - The narrator is at a zoo
-  - Elephants are visible in the background
-  - The clip is informal and candid in style
+  - Jawed Karim stands in front of elephants at the San Diego Zoo.
+  - He highlights the elephants' long trunks as a cool and unique feature.
+  - The video is remarkably brief, ending with a simple sign-off.
+  - This is historically significant as the first-ever video uploaded to YouTube on April 23, 2005.
 
-Topics: zoo, elephants, early internet, vlogging
+Topics: YouTube History, San Diego Zoo, Elephants, Jawed Karim, First YouTube Video
 ```
 
 ---
@@ -109,14 +113,14 @@ Topics: zoo, elephants, early internet, vlogging
 Get timestamped chapters with a one-line summary of each segment.
 
 ```sh
-vask chapters https://youtu.be/jNQXAC9IVRw
+vask chapters "https://www.youtube.com/watch?v=jNQXAC9IVRw"
 ```
 
 ```
-00:00  Introduction at the Zoo
-    Narrator introduces himself in front of the elephant enclosure.
-00:19  Elephant Enclosure
-    Brief description of the elephants and their surroundings.
+00:00  Introduction to the Elephants
+    The speaker introduces himself and the elephants standing in the background at the zoo.
+00:07  About Elephant Trunks
+    The speaker discusses how cool elephants are because of their long trunks before concluding the short video.
 ```
 
 ---

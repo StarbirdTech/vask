@@ -9,7 +9,7 @@
 
 `vask` is a fast, native command-line tool and MCP server for asking questions about videos using Gemini's native video understanding. Point it at a YouTube URL and get answers, summaries, or timestamped chapters back, with no download, no transcript scraping, and no local media pipeline.
 
-The differentiator: Gemini 2.5 accepts a YouTube URL directly as a `fileData` part and processes the actual video (visual frames plus audio) server-side. vask wraps that one capability in a clean CLI and an MCP server so it is usable both from a terminal and from inside Claude Code / Claude Desktop.
+The differentiator: Gemini 3.5 accepts a YouTube URL directly as a `fileData` part and processes the actual video (visual frames plus audio) server-side. vask wraps that one capability in a clean CLI and an MCP server so it is usable both from a terminal and from inside Claude Code / Claude Desktop.
 
 ### Problem it solves
 
@@ -80,7 +80,7 @@ vask ask <url> "what are the three main arguments?"
 vask summarize <url>
 vask chapters <url>
 vask ask <url> "..." --json          # machine-readable output
-vask --model gemini-2.5-pro ...      # override default flash
+vask --model gemini-3.5-pro ...      # override default flash
 ```
 
 ### MCP server (stdio)
@@ -109,7 +109,7 @@ MCP tool `ask_video {url, question}` -> `analyze::ask(url, q)` -> returns the ty
 - Body `contents[].parts`: `[{fileData:{fileUri: url, mimeType: "video/mp4"}}, {text: prompt}]`
 - `summarize` and `chapters` use Gemini structured-output mode (`responseMimeType: "application/json"` + `responseSchema`) so output parses cleanly into `Summary` / `Vec<Chapter>` with no fragile string-munging.
 - `ask` returns a free-form answer, optionally with cited timestamps.
-- Default model `gemini-2.5-flash`; `--model` / config can bump to `gemini-2.5-pro` for long or complex videos.
+- Default model `gemini-3.5-flash` (GA May 2026; native video understanding with timestamped insights and a 1M-token context, well suited to chapter/timestamp extraction). `--model` / config can bump to `gemini-3.5-pro` for long or complex videos once it is GA, or pin any other Gemini model. The model is configurable precisely so the default can track the current best model without a code change; "3.5-flash" is the right default as of 2026-06, not a permanent commitment.
 
 ## Data types (serde)
 
@@ -164,3 +164,4 @@ A future remote / hosted mode, if ever wanted, would use Streamable HTTP per the
 - v1.1: OpenRouter + frame-extraction path for unified billing and non-Gemini models, plus local-file input.
 - v1.2: `highlights` and `visual` tools.
 - Whether to add a Homebrew tap at v1 or wait for traction.
+- **Remote, Cloudflare-hostable MCP variant (future, wanted).** A hosted version exposing vask over Streamable HTTP (the standard remote MCP transport) so it can be added to clients without a local binary. Research already on hand: `~/git/research/2026/06-mcp-state-of-art-2026/` covers Streamable HTTP, stateless-HTTP load balancing, OAuth 2.1, and the `EdgeFastMCP` path for Cloudflare Workers. This would reuse the same `analyze` core; only a new transport/front-door and auth layer are added. The Gemini call itself is plain HTTPS and runs fine from a Worker.

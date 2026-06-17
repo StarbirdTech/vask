@@ -17,19 +17,27 @@ That detail comes from watching the video, not reading a caption.
 
 ## Install
 
-**From source (works today):**
+**Homebrew (macOS and Linux):**
+
+```sh
+brew install starbirdtech/tap/vask
+```
+
+**crates.io:**
+
+```sh
+cargo install vask
+```
+
+**Prebuilt binaries:** grab the build for your platform from the [latest release](https://github.com/StarbirdTech/vask/releases/latest).
+
+**From source:**
 
 ```sh
 git clone https://github.com/StarbirdTech/vask
 cd vask
 cargo install --path .
 ```
-
-**Planned (not yet published):**
-
-- `cargo install vask` (crates.io) - once the crate is published
-- Homebrew tap - once the crate is published
-- Binary download from GitHub Releases (planned)
 
 ## Auth
 
